@@ -1,0 +1,19 @@
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Ignore paths
+[/deps/**, /build/**]
+charset = ignore
+end_of_line = ignore
+indent_size = ignore
+indent_style = ignore
+insert_final_newline = ignore
+trim_trailing_whitespace = ignore

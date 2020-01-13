@@ -1,0 +1,11 @@
+#ifndef VERSION_HPP
+#define VERSION_HPP
+
+#include <string>
+
+constexpr int ENGINE_VERSION_MAJOR  {@VulkanEngine_VERSION_MAJOR@};
+constexpr int ENGINE_VERSION_MINOR  {@VulkanEngine_VERSION_MINOR@};
+constexpr int ENGINE_VERSION_PATCH  {@VulkanEngine_VERSION_PATCH@};
+constexpr auto SOURCES_PATH("@SOURCES_DIR@");
+
+#endif // !VERSION_HPP
