@@ -21,7 +21,8 @@ find_package(Vulkan REQUIRED FATAL_ERROR)
 
 # This project stuff
 # Include sub-projects.
-set(DEPS_DIR "${PROJECT_SOURCE_DIR}/Deps")
+set(DEPS_DIR        "${PROJECT_SOURCE_DIR}/Deps")
+set(SOURCES_SUB_DIR "${PROJECT_SOURCE_DIR}/Sources")
 
 add_subdirectory("${DEPS_DIR}/glfw")
 add_subdirectory("${DEPS_DIR}/glm")
@@ -31,7 +32,7 @@ string(TOUPPER ${CMAKE_BUILD_TYPE} UC_CMAKE_BUILD_TYPE)
 
 if (UC_CMAKE_BUILD_TYPE MATCHES "DEB")
     set(DEBUG_WINDOW TRUE)
-    message(STATUS "${PROJECT_NAME}: Debug Prompt enabled")
+    message(STATUS "${PROJECT_NAME}: Debug window enabled")
 elseif()
     set(DEBUG_WINDOW FALSE)
 endif(UC_CMAKE_BUILD_TYPE MATCHES "DEB")

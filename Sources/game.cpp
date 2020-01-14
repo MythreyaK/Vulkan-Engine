@@ -1,6 +1,8 @@
 #include "game.hpp"
-#include "Render/Instance/Instance.hpp"
-#include "Render/Surface/Surface.hpp"
+#include "Renderer.hpp"
+#include "Logging/Logger.hpp"
+//#include "version.hpp"
+
 #include <chrono>
 
 using namespace Engine;
@@ -21,8 +23,8 @@ int main(void) {
 }
 
 GameWindow::GameWindow(int w, int h, const std::string& title) :
-    GLFW_Window_wrapper(w, h, title), renderer(GetGLFWRequiredInstanceExtensions(), GetHandle()) {
-}
+    GLFW_Window_wrapper(w, h, title),
+    renderer(std::make_unique<Engine::Render::Renderer>(GetGLFWRequiredInstanceExtensions(), GetHandle())) {}
 
 void GameWindow::WindowLoop() {
 
@@ -35,7 +37,7 @@ void GameWindow::WindowLoop() {
 
         PollEvents();
         // draw frame
-        renderer.DrawFrame();
+        renderer->DrawFrame();
         ++count;
 
         diff = std::chrono::high_resolution_clock::now() - start;
@@ -49,6 +51,6 @@ void GameWindow::WindowLoop() {
 
     }
 
-    renderer.WaitDevice();
+    renderer->WaitDevice();
 }
 

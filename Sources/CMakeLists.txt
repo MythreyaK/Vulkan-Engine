@@ -6,9 +6,12 @@ configure_file("Version.hpp.in" "Version.hpp")
 
 add_subdirectory("Render")
 add_subdirectory("Window")
+add_subdirectory("Logging")
 
 add_executable(Game "game.cpp" "game.hpp")
 
-target_link_libraries(Game PUBLIC WindowLib PUBLIC RenderLib)
-
-
+target_link_libraries(Game
+                    PUBLIC WindowLib
+                    PUBLIC RenderLib
+                    PRIVATE LoggingLib
+)

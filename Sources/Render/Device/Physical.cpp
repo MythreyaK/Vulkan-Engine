@@ -1,6 +1,6 @@
 #include "Physical.hpp"
-
 #include "DeviceExtensions.hpp"
+#include "Logger.hpp"
 
 #include <iostream>
 #include <map>
@@ -30,12 +30,10 @@ namespace Engine::Render::Device {
             score += 20;
         }
 
-#       ifndef NDEBUG
-        LOG << "GPU: "          << properties.deviceName << '\n';
-        LOG << "\t Type: "      << StringifyDeviceType(properties.deviceType) << '\n';
-        LOG << "\t Texture limit: " << properties.limits.maxImageDimension2D << '\n';
-        LOG << "\t Device Extensions:\n";
-#       endif // !NDEBUG
+        LOGGER << "GPU: "          << properties.deviceName << '\n';
+        LOGGER << "\t Type: "      << StringifyDeviceType(properties.deviceType) << '\n';
+        LOGGER << "\t Texture limit: " << properties.limits.maxImageDimension2D << '\n';
+        LOGGER << "\t Device Extensions:\n";
 
         // Now, update the queue details
         GetDeviceQueueInfo(surf);
@@ -78,12 +76,10 @@ namespace Engine::Render::Device {
                 presentSupport = true;
             }
 
-#           ifndef NDEBUG
-            LOG << "\t Queue Familiy [" << queueInx << "]: \n";
-            LOG << "\t\t Present Support: " << std::boolalpha << presentSupport << '\n';
-            LOG << "\t\t Queue Count: " << count << '\n';
-            LOG << "\t\t Queue flags: " << StringifyQueueType(queueFam.queueFamilyProperties.queueFlags) << '\n';
-#           endif // !NDEBUG
+            LOGGER << "\t Queue Familiy [" << queueInx << "]: \n";
+            LOGGER << "\t\t Present Support: " << std::boolalpha << presentSupport << '\n';
+            LOGGER << "\t\t Queue Count: " << count << '\n';
+            LOGGER << "\t\t Queue flags: " << StringifyQueueType(queueFam.queueFamilyProperties.queueFlags) << '\n';
         }
     }
 
@@ -111,7 +107,7 @@ namespace Engine::Render::Device {
 
         allSurfaceFormats   = surfaceFormats;
         allPresentModes     = surfacePresentModes;
-        // Pick the present modes and formats we require. 
+        // Pick the present modes and formats we require.
         // TODO: Settle with what is supported
 
         bool surfSupport{ false };
@@ -157,9 +153,7 @@ namespace Engine::Render::Device {
 
         for (auto& i = devices.crbegin(); i != devices.crend(); ++i) {
             if (i->second.SupportsPresent()) {
-#               ifndef NDEBUG
-                LOG << "Picked Device: \"" << i->second.Name() << "\"\n";
-#               endif // !NDEBUG
+                LOGGER << "Picked Device: \"" << i->second.Name() << "\"\n";
                 return i->second;
             }
         }

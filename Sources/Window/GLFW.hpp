@@ -1,5 +1,4 @@
 #ifndef GLFW_WRAPPER_HPP
-
 #define GLFW_WRAPPER_HPP
 
 #include <string>
@@ -36,16 +35,15 @@ namespace Engine::Window {
     public:
         GLFW_Window_wrapper(int w = 300, int h = 300, const std::string& title = std::string("Window"));
         GLFW_Window_wrapper(GLFW_Window_wrapper&) = delete;
-        GLFW_Window_wrapper(GLFW_Window_wrapper&&) = delete;
+        GLFW_Window_wrapper(GLFW_Window_wrapper&&) = default;
         ~GLFW_Window_wrapper();
 
         std::vector<const char*> GetGLFWRequiredInstanceExtensions();
 
-        GLFW_Window_wrapper operator= (const GLFW_Window_wrapper &) = delete;
-        GLFW_Window_wrapper operator= (const GLFW_Window_wrapper &&) = delete;
+        GLFW_Window_wrapper& operator= (const GLFW_Window_wrapper &) = delete;
+        GLFW_Window_wrapper& operator= (GLFW_Window_wrapper&&) = default;
 
         WindowHandle* GetHandle();
-
 
         void PollEvents();
         void WaitEvents();

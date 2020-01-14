@@ -1,4 +1,5 @@
 #include "Surface.hpp"
+#include "Logger.hpp"
 
 #include <iostream>
 
@@ -17,8 +18,6 @@ namespace Engine::Render::Surface {
         if (VK_SUCCESS == glfwCreateWindowSurface(inst.operator VkInstance(), handle, nullptr, &my_surface)) {
 
             vk::ObjectDestroy<vk::Instance, vk::DispatchLoaderDynamic> surfaceDeleter(inst, nullptr, VULKAN_HPP_DEFAULT_DISPATCHER);
-
-            LOG << "Surface Creation complete\n";
 
             return vk::UniqueSurfaceKHR(vk::SurfaceKHR(my_surface), surfaceDeleter);
         }

@@ -7,8 +7,6 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 
-#define LOG std::cerr
-
 #include <vulkan/vulkan.hpp>
 
 static vk::DynamicLoader dynamicLoader;

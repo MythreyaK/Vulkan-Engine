@@ -1,4 +1,6 @@
 #include "Instance.hpp"
+#include "Logger.hpp"
+
 #include <iostream>
 
 namespace Engine::Render::Instance {
@@ -18,21 +20,19 @@ namespace Engine::Render::Instance {
 
         // Initialize the dynamic loader
         VULKAN_HPP_DEFAULT_DISPATCHER.init(
-            dynamicLoader.getProcAddress<PFN_vkGetInstanceProcAddr>(
-                "vkGetInstanceProcAddr")
+            dynamicLoader.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr")
         );
 
         // Debug/Validation layers
-#       ifndef NDEBUG
-
-        ch_vec enabled_extns{ requiredExtns };
-        enabled_extns.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#       ifndef RELEASE_BUILD
+        ch_vec requiredExtnsWithDebug{ requiredExtns };
+        requiredExtnsWithDebug.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
         const ch_vec& val_layers = GetValidationLayers(validationLayers);
 
         if (!CheckValidationLayerSupport(val_layers))
             throw std::runtime_error("Requested Validation layers not available.");
-#       endif // !NDEBUG
+#       endif // !RELEASE_BUILD
 
 
         // App info 
@@ -48,19 +48,19 @@ namespace Engine::Render::Instance {
         const auto& instCreateInfo = vk::InstanceCreateInfo()
             .setFlags(vk::InstanceCreateFlags())
             .setPApplicationInfo(&appInfo)
-        // use required + debug extension for debug
-#       ifndef NDEBUG
+            // use required + debug extension for debug
+#       ifndef RELEASE_BUILD
             .setEnabledLayerCount(static_cast<uint32_t>(val_layers.size()))
             .setPpEnabledLayerNames(val_layers.data())
-            .setEnabledExtensionCount(static_cast<uint32_t>(enabled_extns.size()))
-            .setPpEnabledExtensionNames(enabled_extns.data());
+            .setEnabledExtensionCount(static_cast<uint32_t>(requiredExtnsWithDebug.size()))
+            .setPpEnabledExtensionNames(requiredExtnsWithDebug.data());
         // else just use the required extensions
 #       else
-            .setPpEnabledExtensionNames(requiredExtns.data())
-            .setEnabledExtensionCount(static_cast<uint32_t>(requiredExtns.size()))
             .setEnabledLayerCount(0)
-            .setPpEnabledLayerNames(nullptr);
-#       endif // !NDEBUG
+            .setPpEnabledLayerNames(nullptr)
+            .setEnabledExtensionCount(static_cast<uint32_t>(requiredExtns.size()))
+            .setPpEnabledExtensionNames(requiredExtns.data());
+#       endif // !RELEASE_BUILD
 
         // Actually cerate the instance
         auto vulkanInstance = vk::createInstanceUnique(instCreateInfo);
@@ -88,22 +88,20 @@ namespace Engine::Render::Instance {
                 }
             }
 
-#           ifndef NDEBUG
             if (foundThis) {
                 // layer found, this can be enabled
-                LOG << "[E] " << supp_layer.layerName << '\n';
+                LOGGER << "[E] " << supp_layer.layerName << '\n';
             }
             else {
-                LOG << "[D] " << supp_layer.layerName << '\n';
+                LOGGER << "[D] " << supp_layer.layerName << '\n';
             }
-#           endif // !NDEBUG
         }
 
         return nLayersFound == requestedLayers.size();
     }
 
 
-    ch_vec& GetValidationLayers(std::optional<ch_vec> requestedLayers) {
+    const ch_vec& GetValidationLayers(const std::optional<ch_vec>& requestedLayers) {
 
         if (requestedLayers.has_value()) {
             return requestedLayers.value();

@@ -1,8 +1,6 @@
 #include "GLFW.hpp"
 #include <GLFW/glfw3.h>
 
-#define LOG std::cerr
-
 namespace Engine::Window {
 
     // All the static stuff init
@@ -14,7 +12,6 @@ namespace Engine::Window {
     bool GLFW_Window_wrapper::InitGLFW(int w, int h, const std::string& title) {
         /* Initialize the library */
         if (!glfwInit()) {
-            LOG << "GLFW Init failed\n";
             return false;
         }
 
@@ -22,7 +19,6 @@ namespace Engine::Window {
         WindowHandle* window = glfwCreateWindow(w, h, title.c_str(), NULL, NULL);
 
         if (!window) {
-            LOG << "GLFW window creation failed\n";
             return false;
         }
 
@@ -42,9 +38,7 @@ namespace Engine::Window {
         glfwSetScrollCallback(windowHandle, GLFW_Window_wrapper::scroll_callback);
         glfwSetFramebufferSizeCallback(windowHandle, GLFW_Window_wrapper::framebuffer_resize_callback);
 
-    } catch (std::exception e) {
-        LOG << "Could not create Window: " << e.what() << '\n';
-    }
+    } catch (const std::exception&) {}
 
 
     GLFW_Window_wrapper::~GLFW_Window_wrapper() {
@@ -57,16 +51,7 @@ namespace Engine::Window {
     std::vector<const char*> GLFW_Window_wrapper::GetGLFWRequiredInstanceExtensions() {
         auto glfwExtCount = 0u;
         auto glfwExt = glfwGetRequiredInstanceExtensions(&glfwExtCount);
-        std::vector<const char*> extVec(glfwExt, glfwExt + glfwExtCount);
-
-    #ifndef NDEBUG
-        LOG << "GLFW required instance extensions: " << glfwExtCount << '\n';
-        for (auto& i : extVec) {
-            LOG << i << '\n';
-        }
-    #endif // !NDEBUG
-
-        return extVec;
+        return {glfwExt, glfwExt + glfwExtCount};
     }
 
     WindowHandle* GLFW_Window_wrapper::GetHandle() {

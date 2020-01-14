@@ -22,7 +22,7 @@ namespace Engine::Render::Instance {
 
 
     const bool CheckValidationLayerSupport(const std::vector<const char*>&);
-    ch_vec& GetValidationLayers(std::optional<ch_vec> requestedLayers);
+    const ch_vec& GetValidationLayers(const std::optional<ch_vec>& requestedLayers);
 }
 
 

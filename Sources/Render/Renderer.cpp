@@ -1,7 +1,7 @@
 #include "Renderer.hpp"
 
 #include "Instance/Instance.hpp"
-#include "Debug/DebugUtils.hpp"
+#include "VulkanDebug/DebugUtils.hpp"
 #include "Surface/Surface.hpp"
 #include "Device/Physical.hpp"
 #include "Device/Logical.hpp"
@@ -10,6 +10,7 @@
 #include "RenderPass/RenderPass.hpp"
 #include "Pipeline/Pipeline.hpp"
 #include "Command/Command.hpp"
+#include "Logger.hpp"
 
 #include <iostream>
 #include <set>
@@ -31,7 +32,9 @@ namespace Engine::Render {
 
     Renderer::Renderer(const std::vector<const char*>& instanceExtensions, WindowHandle* handle) :
         renderInstance      (ERI::CreateInstance        (instanceExtensions,    std::nullopt,                       handle  )),
+#       ifndef RELEASE_BUILD
         debugMessenger      (ERDB::CreateDebugMessenger (renderInstance.get(),  debug_callback,                     this    )),
+#       endif // !NDEBUG
         renderSurface       (ERS::CreateSurface         (renderInstance.get(),  handle                                      )),
         physicalDeviceInfo  (ERD::PickDevice            (renderInstance.get(),  renderSurface.get()                         )),
         renderDevice        (ERDL::CreateLogicalDevice  (physicalDeviceInfo,    renderSurface.get()                         )),
@@ -89,13 +92,6 @@ namespace Engine::Render {
             return;
         }
 
-        //if (acquireResult.result == vk::Result::eErrorOutOfDateKHR) {
-        //    queues[0].waitIdle();
-        //    WaitDevice();
-        //    CleanupSwapchain();
-        //    RecreateSwapchain();
-        //}
-
         const auto imageIndex{ acquireResult.value};
 
         if (imagesInFlight[imageIndex]) {
@@ -144,12 +140,6 @@ namespace Engine::Render {
         }
 
         // TODO: Disable Vulkan exceptions and use if/else
-        //if (presentResult == vk::Result::eErrorOutOfDateKHR) {
-        //    queues[0].waitIdle();
-        //    WaitDevice();
-        //    CleanupSwapchain();
-        //    RecreateSwapchain();
-        //}
 
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
@@ -190,7 +180,7 @@ namespace Engine::Render {
         const vk::DebugUtilsMessageTypeFlagsEXT&        messageType,
         const vk::DebugUtilsMessengerCallbackDataEXT&   callbackData) {
 
-        LOG << "[VAL "
+        LOGGER << "[VAL "
             << GetLevel(messageSeverity) << ": "
             << GetType(messageType) << " ]"
             << callbackData.pMessage << "\n";

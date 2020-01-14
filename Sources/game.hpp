@@ -1,18 +1,18 @@
-
-#pragma once
 #ifndef GAME_MAIN_HPP
 #define GAME_MAIN_HPP
 
-#include <string>
-//#include <glm/glm.hpp>
-#include "version.hpp"
 #include "Window/GLFW.hpp"
-#include "Renderer.hpp"
+
+#include <string>
+
+namespace Engine::Render {
+    class Renderer;
+}
 
 class GameWindow : public Engine::Window::GLFW_Window_wrapper {
 
 private:
-    Engine::Render::Renderer renderer;
+    std::unique_ptr<Engine::Render::Renderer> renderer;
 
 public:
     GameWindow(int w, int h, const std::string& title);

@@ -26,7 +26,9 @@ namespace Engine::Render {
         using UniqueRenderFences    = std::vector<vk::UniqueFence>;
 
         vk::UniqueInstance          renderInstance;
+#       ifndef RELEASE_BUILD
         UniqueDebugMessenger        debugMessenger;
+#       endif // !RELEASE_BUILD
         vk::UniqueSurfaceKHR        renderSurface;
         ERD::PhysicalDevice         physicalDeviceInfo;
         vk::UniqueDevice            renderDevice;
