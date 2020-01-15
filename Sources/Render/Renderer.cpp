@@ -32,9 +32,9 @@ namespace Engine::Render {
 
     Renderer::Renderer(const std::vector<const char*>& instanceExtensions, WindowHandle* handle) :
         renderInstance      (ERI::CreateInstance        (instanceExtensions,    std::nullopt,                       handle  )),
-#       ifndef RELEASE_BUILD
+#       ifdef BUILD_TYPE_DEBUG
         debugMessenger      (ERDB::CreateDebugMessenger (renderInstance.get(),  debug_callback,                     this    )),
-#       endif // !NDEBUG
+#       endif // BUILD_TYPE_DEBUG
         renderSurface       (ERS::CreateSurface         (renderInstance.get(),  handle                                      )),
         physicalDeviceInfo  (ERD::PickDevice            (renderInstance.get(),  renderSurface.get()                         )),
         renderDevice        (ERDL::CreateLogicalDevice  (physicalDeviceInfo,    renderSurface.get()                         )),

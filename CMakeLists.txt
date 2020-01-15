@@ -29,12 +29,22 @@ add_subdirectory("${DEPS_DIR}/glm")
 
 # Remove debug console for release builds
 string(TOUPPER ${CMAKE_BUILD_TYPE} UC_CMAKE_BUILD_TYPE)
+set(BUILD_TYPE_STRING ${CMAKE_BUILD_TYPE})
 
-if (UC_CMAKE_BUILD_TYPE MATCHES "DEB")
+if (UC_CMAKE_BUILD_TYPE MATCHES "DEBUG")
     set(DEBUG_WINDOW TRUE)
+    set(BUILD_TYPE_DEBUG TRUE)
     message(STATUS "${PROJECT_NAME}: Debug window enabled")
-elseif()
+
+elseif(UC_CMAKE_BUILD_TYPE MATCHES "RELEASE")
     set(DEBUG_WINDOW FALSE)
-endif(UC_CMAKE_BUILD_TYPE MATCHES "DEB")
+    set(BUILD_TYPE_RELEASE TRUE)
+
+elseif(UC_CMAKE_BUILD_TYPE MATCHES "RELWITHDEBINFO")
+    set(DEBUG_WINDOW FALSE)
+    set(BUILD_TYPE_RELEASE_DEBUG_INFO TRUE)
+
+endif()
+
 
 add_subdirectory ("Sources")

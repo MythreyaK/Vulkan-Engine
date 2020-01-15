@@ -5,6 +5,8 @@
 #include "VKinclude/VKinclude.hpp"
 #include "Device/Physical.hpp"
 #include "Pipeline/Pipeline.hpp"
+#include "Version.hpp"
+
 
 struct GLFWwindow;
 typedef GLFWwindow WindowHandle;
@@ -26,9 +28,9 @@ namespace Engine::Render {
         using UniqueRenderFences    = std::vector<vk::UniqueFence>;
 
         vk::UniqueInstance          renderInstance;
-#       ifndef RELEASE_BUILD
+#       ifdef BUILD_TYPE_DEBUG
         UniqueDebugMessenger        debugMessenger;
-#       endif // !RELEASE_BUILD
+#       endif // !BUILD_TYPE_DEBUG
         vk::UniqueSurfaceKHR        renderSurface;
         ERD::PhysicalDevice         physicalDeviceInfo;
         vk::UniqueDevice            renderDevice;

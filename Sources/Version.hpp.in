@@ -3,9 +3,32 @@
 
 #include <string>
 
-constexpr int ENGINE_VERSION_MAJOR  {@VulkanEngine_VERSION_MAJOR@};
-constexpr int ENGINE_VERSION_MINOR  {@VulkanEngine_VERSION_MINOR@};
-constexpr int ENGINE_VERSION_PATCH  {@VulkanEngine_VERSION_PATCH@};
+// Defines for compile time
+#cmakedefine BUILD_TYPE_DEBUG
+#cmakedefine BUILD_TYPE_RELEASE
+#cmakedefine BUILD_TYPE_RELEASE_DEBUG_INFO
+
 constexpr auto SOURCES_PATH("@SOURCES_DIR@");
+
+namespace Engine::Debug::BuildInfo {
+
+    constexpr int VERSION_MAJOR  {@VulkanEngine_VERSION_MAJOR@};
+    constexpr int VERSION_MINOR  {@VulkanEngine_VERSION_MINOR@};
+    constexpr int VERSION_PATCH  {@VulkanEngine_VERSION_PATCH@};
+
+    enum class BuildType {
+        DEBUG,
+        RELEASE,
+        RELEASE_DEBUG_INFO
+    };
+
+    constexpr std::string_view BUILD_TYPE_STR { "@CMAKE_BUILD_TYPE@" };
+
+    constexpr BuildInfo::BuildType GetBuildType() {
+        if      constexpr   (BUILD_TYPE_STR == std::string_view("Debug"))           { return BuildType::DEBUG;              }
+        else if constexpr   (BUILD_TYPE_STR == std::string_view("Release"))         { return BuildType::RELEASE;            }
+        else if constexpr   (BUILD_TYPE_STR == std::string_view("RelWithDebInfo"))  { return BuildType::RELEASE_DEBUG_INFO; }
+    }
+}
 
 #endif // !VERSION_HPP

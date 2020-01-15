@@ -16,8 +16,8 @@ namespace Engine::Render::Device {
         this->index = index;
         hardwareDevice = phy_dev;
 
-        auto& features      = hardwareDevice.getFeatures2().features;
-        auto& properties    = hardwareDevice.getProperties2().properties;
+        auto features  { hardwareDevice.getFeatures2().features };
+        auto properties{ hardwareDevice.getProperties2().properties };
 
         name = std::string{ properties.deviceName };
 
@@ -46,7 +46,7 @@ namespace Engine::Render::Device {
 
     void PhysicalDevice::GetDeviceQueueInfo(const vk::SurfaceKHR& surface) {
 
-        auto& queueFams = hardwareDevice.getQueueFamilyProperties2();
+        const auto& queueFams{ hardwareDevice.getQueueFamilyProperties2() };
 
         int queueInx = -1;
         for (auto& queueFam : queueFams) {
@@ -111,7 +111,6 @@ namespace Engine::Render::Device {
         // TODO: Settle with what is supported
 
         bool surfSupport{ false };
-        bool presentModeSupport{ false };
 
         for (const auto& i : surfaceFormats) {
             if (i.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear && i.format == vk::Format::eB8G8R8A8Unorm) {
@@ -151,7 +150,7 @@ namespace Engine::Render::Device {
             devices.emplace(dev.GetScore(), dev);
         }
 
-        for (auto& i = devices.crbegin(); i != devices.crend(); ++i) {
+        for (auto i{ devices.crbegin() }; i != devices.crend(); ++i) {
             if (i->second.SupportsPresent()) {
                 LOGGER << "Picked Device: \"" << i->second.Name() << "\"\n";
                 return i->second;

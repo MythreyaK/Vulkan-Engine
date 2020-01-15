@@ -94,6 +94,7 @@ ipch/
 # Visual Studio/Visual Studio Code
 .vs/
 .vscode/
+*.hint
 
 # NVidia Nsight GPU debugger configuration file
 *.nvuser
