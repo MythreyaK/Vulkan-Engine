@@ -36,8 +36,13 @@ namespace Engine::Render::Device {
         const bool operator<(const PhysicalDevice& other);
 
     public:
-        PhysicalDevice() {};
+        PhysicalDevice() = default;
+        PhysicalDevice(const PhysicalDevice&) = default;
+        PhysicalDevice(PhysicalDevice&&) = default;
         PhysicalDevice(int index, const vk::PhysicalDevice&, const vk::SurfaceKHR& surface);
+
+        PhysicalDevice& operator=(const PhysicalDevice&) = default;
+        PhysicalDevice& operator=(PhysicalDevice&&) = default;
 
         const int  GetIndex()          const { return index;                }
         const int  GetScore()          const { return score;                }

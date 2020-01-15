@@ -47,7 +47,7 @@ namespace Engine::Render {
         UniqueRenderSemaphore       renderFinishedSemaphores;
         UniqueImageFences           inFlightFences;
 
-        const int MAX_FRAMES_IN_FLIGHT{ static_cast<int>(swapImages.size()) };
+
         // No copies!
         Renderer(const Renderer&) = delete;
         Renderer& operator=(const Renderer&) = delete;
@@ -56,6 +56,7 @@ namespace Engine::Render {
         void DestroySyncObjects();
         void RecreateSwapchain();
         void CleanupSwapchain();
+        const int GetMaxFramesInFlight();
 
     public:
         Renderer() = default;

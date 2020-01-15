@@ -9,9 +9,10 @@ using namespace Engine;
 
 int main(void) {
 
+    GameWindow::DumpVersion();
+
     try {
         GameWindow termWindow{ GameWindow(800, 600, std::string("Yay!")) };
-
         termWindow.WindowLoop();
     }
     catch (std::exception e){
@@ -52,5 +53,10 @@ void GameWindow::WindowLoop() {
     }
 
     renderer->WaitDevice();
+}
+
+void GameWindow::DumpVersion() {
+    namespace ERDBI = Engine::Debug::BuildInfo;
+    LOGGER << "Engine version: " << ERDBI::GetVersionString() << "\n";
 }
 

@@ -29,6 +29,10 @@ namespace Engine::Debug::BuildInfo {
         else if constexpr   (BUILD_TYPE_STR == std::string_view("Release"))         { return BuildType::RELEASE;            }
         else if constexpr   (BUILD_TYPE_STR == std::string_view("RelWithDebInfo"))  { return BuildType::RELEASE_DEBUG_INFO; }
     }
+
+    constexpr std::string_view GetVersionString() {
+        return { "@VulkanEngine_VERSION_MAJOR@.@VulkanEngine_VERSION_MINOR@.@VulkanEngine_VERSION_PATCH@ (@CMAKE_BUILD_TYPE@)" };
+    }
 }
 
 #endif // !VERSION_HPP

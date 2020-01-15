@@ -4,6 +4,17 @@
 namespace Engine::Debug {
     class Logger {
 
+    private:
+        Logger();
+
+    public:
+
+        enum class Severity {
+            Info,
+            Warning,
+            Error
+        };
+
     };
 }
 

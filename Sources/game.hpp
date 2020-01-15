@@ -17,6 +17,7 @@ private:
 public:
     GameWindow(int w, int h, const std::string& title);
     void WindowLoop() override;
+    static void DumpVersion();
 };
 
 #endif // !GAME_MAIN_H

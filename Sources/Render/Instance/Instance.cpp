@@ -1,5 +1,6 @@
 #include "Instance.hpp"
 #include "Logger.hpp"
+#include "Version.hpp"
 
 #include <iostream>
 
@@ -49,7 +50,7 @@ namespace Engine::Render::Instance {
             .setFlags(vk::InstanceCreateFlags())
             .setPApplicationInfo(&appInfo)
             // use required + debug extension for debug
-#       ifndef RELEASE_BUILD
+#       ifdef BUILD_TYPE_DEBUG
             .setEnabledLayerCount(static_cast<uint32_t>(val_layers.size()))
             .setPpEnabledLayerNames(val_layers.data())
             .setEnabledExtensionCount(static_cast<uint32_t>(requiredExtnsWithDebug.size()))
@@ -57,10 +58,10 @@ namespace Engine::Render::Instance {
         // else just use the required extensions
 #       else
             .setEnabledLayerCount(0)
-            .setPpEnabledLayerNames(nullptr)
+            .setPpEnabledLayerNames(val_layers.data())
             .setEnabledExtensionCount(static_cast<uint32_t>(requiredExtns.size()))
             .setPpEnabledExtensionNames(requiredExtns.data());
-#       endif // !RELEASE_BUILD
+#       endif // BUILD_TYPE_DEBUG
 
         // Actually cerate the instance
         auto vulkanInstance = vk::createInstanceUnique(instCreateInfo);
