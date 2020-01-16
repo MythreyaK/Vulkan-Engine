@@ -12,26 +12,32 @@ constexpr auto SOURCES_PATH("@SOURCES_DIR@");
 
 namespace Engine::Debug::BuildInfo {
 
-    constexpr int VERSION_MAJOR  {@VulkanEngine_VERSION_MAJOR@};
-    constexpr int VERSION_MINOR  {@VulkanEngine_VERSION_MINOR@};
-    constexpr int VERSION_PATCH  {@VulkanEngine_VERSION_PATCH@};
+    constexpr int Version_Major  {@VulkanEngine_VERSION_MAJOR@};
+    constexpr int Version_Minor  {@VulkanEngine_VERSION_MINOR@};
+    constexpr int Version_Patch  {@VulkanEngine_VERSION_PATCH@};
+
+    constexpr std::string_view BuildTypeString  {"@CMAKE_BUILD_TYPE@"};
+    constexpr std::string_view CompilerName     {"@CMAKE_CXX_COMPILER_ID@"};
+    constexpr std::string_view CompilerVersion  {"@CMAKE_CXX_COMPILER_VERSION@"};
 
     enum class BuildType {
-        DEBUG,
-        RELEASE,
-        RELEASE_DEBUG_INFO
+        Debug,
+        Release,
+        ReleaseDebugInfo
     };
 
-    constexpr std::string_view BUILD_TYPE_STR { "@CMAKE_BUILD_TYPE@" };
-
     constexpr BuildInfo::BuildType GetBuildType() {
-        if      constexpr   (BUILD_TYPE_STR == std::string_view("Debug"))           { return BuildType::DEBUG;              }
-        else if constexpr   (BUILD_TYPE_STR == std::string_view("Release"))         { return BuildType::RELEASE;            }
-        else if constexpr   (BUILD_TYPE_STR == std::string_view("RelWithDebInfo"))  { return BuildType::RELEASE_DEBUG_INFO; }
+        if      constexpr   (BuildTypeString == std::string_view("Debug"))           { return BuildType::Debug;              }
+        else if constexpr   (BuildTypeString == std::string_view("Release"))         { return BuildType::Release;            }
+        else if constexpr   (BuildTypeString == std::string_view("RelWithDebInfo"))  { return BuildType::ReleaseDebugInfo;  }
     }
 
     constexpr std::string_view GetVersionString() {
         return { "@VulkanEngine_VERSION_MAJOR@.@VulkanEngine_VERSION_MINOR@.@VulkanEngine_VERSION_PATCH@ (@CMAKE_BUILD_TYPE@)" };
+    }
+
+    constexpr std::string_view GetCompilerString() {
+        return { "@CMAKE_CXX_COMPILER_ID@ @CMAKE_CXX_COMPILER_VERSION@" };
     }
 }
 

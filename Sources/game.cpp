@@ -57,6 +57,7 @@ void GameWindow::WindowLoop() {
 
 void GameWindow::DumpVersion() {
     namespace ERDBI = Engine::Debug::BuildInfo;
-    LOGGER << "Engine version: " << ERDBI::GetVersionString() << "\n";
+    LOGGER << "Engine version: " << ERDBI::GetVersionString() << '\n';
+    LOGGER << "Compiled with " << ERDBI::GetCompilerString() << '\n';
 }
 

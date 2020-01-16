@@ -72,7 +72,7 @@ namespace Engine::Render {
     }
 
     void Renderer::DrawFrame() {
-        static unsigned frameNumber{ 0 };
+
         static int currentFrame{ 0 };
         static std::vector<bool> imagesInFlight(GetMaxFramesInFlight());
 
