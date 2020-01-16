@@ -10,10 +10,11 @@ namespace Engine::Render::Shader {
 
 
     vk::UniqueShaderModule CreateShaderModule(const vk::Device& device, const std::string& fname) {
-        const auto& buffer = ReadShader(fname);
-        const auto& shaderModuleCreateInfo = vk::ShaderModuleCreateInfo()
+        const auto buffer{ ReadShader(fname) };
+        const auto shaderModuleCreateInfo{ vk::ShaderModuleCreateInfo()
             .setCodeSize(buffer.size())
-            .setPCode(reinterpret_cast<const uint32_t*>(buffer.data()));
+            .setPCode(reinterpret_cast<const uint32_t*>(buffer.data()))
+        };
 
         return device.createShaderModuleUnique(shaderModuleCreateInfo);
     }

@@ -16,8 +16,7 @@ namespace Engine::Render::Instance {
     vk::UniqueInstance CreateInstance(
         const std::vector<const char*>& requiredExtns,
         const std::optional<std::vector<const char*>> validationLayers,
-        WindowHandle* handle)
-    {
+        WindowHandle* handle) {
 
         // Initialize the dynamic loader
         VULKAN_HPP_DEFAULT_DISPATCHER.init(
@@ -29,7 +28,7 @@ namespace Engine::Render::Instance {
         ch_vec requiredExtnsWithDebug{ requiredExtns };
         requiredExtnsWithDebug.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-        const ch_vec& val_layers = GetValidationLayers(validationLayers);
+        const ch_vec& val_layers{ GetValidationLayers(validationLayers) };
 
         if (!CheckValidationLayerSupport(val_layers))
             throw std::runtime_error("Requested Validation layers not available.");
@@ -37,16 +36,17 @@ namespace Engine::Render::Instance {
 
 
         // App info 
-        const auto& appInfo = vk::ApplicationInfo()
+        const auto appInfo{ vk::ApplicationInfo()
             .setPApplicationName("Vulkan App")
             .setApiVersion(VK_API_VERSION_1_1)
             .setApplicationVersion(1)
             .setEngineVersion(1)
-            .setPEngineName("Vulkan Engine");
+            .setPEngineName("Vulkan Engine")
+        };
 
 
         // Instance create info
-        const auto& instCreateInfo = vk::InstanceCreateInfo()
+        const auto instCreateInfo{ vk::InstanceCreateInfo()
             .setFlags(vk::InstanceCreateFlags())
             .setPApplicationInfo(&appInfo)
             // use required + debug extension for debug
@@ -54,17 +54,19 @@ namespace Engine::Render::Instance {
             .setEnabledLayerCount(static_cast<uint32_t>(val_layers.size()))
             .setPpEnabledLayerNames(val_layers.data())
             .setEnabledExtensionCount(static_cast<uint32_t>(requiredExtnsWithDebug.size()))
-            .setPpEnabledExtensionNames(requiredExtnsWithDebug.data());
+            .setPpEnabledExtensionNames(requiredExtnsWithDebug.data())
+        };
         // else just use the required extensions
 #       else
             .setEnabledLayerCount(0)
             .setPpEnabledLayerNames(val_layers.data())
             .setEnabledExtensionCount(static_cast<uint32_t>(requiredExtns.size()))
-            .setPpEnabledExtensionNames(requiredExtns.data());
+            .setPpEnabledExtensionNames(requiredExtns.data())
+        };
 #       endif // BUILD_TYPE_DEBUG
 
         // Actually cerate the instance
-        auto vulkanInstance = vk::createInstanceUnique(instCreateInfo);
+        auto vulkanInstance{ vk::createInstanceUnique(instCreateInfo) };
 
         VULKAN_HPP_DEFAULT_DISPATCHER.init(vulkanInstance.get());
 
@@ -74,7 +76,7 @@ namespace Engine::Render::Instance {
 
     const bool CheckValidationLayerSupport(const ch_vec& requestedLayers) {
 
-        const auto& supportedLayers = vk::enumerateInstanceLayerProperties();
+        const auto supportedLayers{ vk::enumerateInstanceLayerProperties() };
 
         int nLayersFound{ 0 };
 

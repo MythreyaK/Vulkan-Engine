@@ -14,8 +14,8 @@ namespace Engine::Render {
 
         namespace ESHDR = Engine::Render::Shader;
 
-        const auto& vertCode    = ESHDR::CreateShaderModule(renderDevice, path + "vert.spv");
-        const auto& fragCode    = ESHDR::CreateShaderModule(renderDevice, path + "frag.spv");
+        const auto vertCode { ESHDR::CreateShaderModule(renderDevice, path + "vert.spv") };
+        const auto fragCode { ESHDR::CreateShaderModule(renderDevice, path + "frag.spv") };
 
 
         const auto inputAssembly{ vk::PipelineInputAssemblyStateCreateInfo()

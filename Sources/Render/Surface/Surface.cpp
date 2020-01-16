@@ -13,7 +13,7 @@ extern "C" {
 namespace Engine::Render::Surface {
 
     vk::UniqueSurfaceKHR CreateSurface(vk::Instance& inst, WindowHandle* handle) {
-        VkSurfaceKHR my_surface;
+        VkSurfaceKHR my_surface{};
 
         if (VK_SUCCESS == glfwCreateWindowSurface(inst.operator VkInstance(), handle, nullptr, &my_surface)) {
 

@@ -15,23 +15,26 @@ namespace Engine::Render::Device::Logical {
         const std::set<uint32_t> uniqueQueueFamilies{ devInfo.GraphicsQueue(), devInfo.PresentQueue() };
 
         for (auto& i : uniqueQueueFamilies) {
-            const auto qCreateInfo = vk::DeviceQueueCreateInfo()
+            const auto qCreateInfo{ vk::DeviceQueueCreateInfo()
                 .setQueueFamilyIndex(i)
                 .setQueueCount(1)
-                .setPQueuePriorities(&priority);
+                .setPQueuePriorities(&priority)
+            };
+
             queuesCreateInfos.emplace_back(qCreateInfo);
         }
 
-        const auto& logicalDeviceCreateInfo = vk::DeviceCreateInfo()
+        const auto logicalDeviceCreateInfo{ vk::DeviceCreateInfo()
             // TODO: Hmmmm featuressss....
             .setPEnabledFeatures({})
             .setPQueueCreateInfos(queuesCreateInfos.data())
             .setQueueCreateInfoCount(static_cast<uint32_t>(queuesCreateInfos.size()))
             .setEnabledExtensionCount(static_cast<uint32_t>(requiredDeviceExtensions.size()))
-            .setPpEnabledExtensionNames(requiredDeviceExtensions.data());
+            .setPpEnabledExtensionNames(requiredDeviceExtensions.data())
+        };
 
         // Create logical device and get device speficic pointers
-        auto renderDevice = devInfo.Get().createDeviceUnique(logicalDeviceCreateInfo);
+        auto renderDevice{ devInfo.Get().createDeviceUnique(logicalDeviceCreateInfo) };
         VULKAN_HPP_DEFAULT_DISPATCHER.init(renderDevice.get());
 
         return renderDevice;

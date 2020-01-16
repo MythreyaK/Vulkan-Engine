@@ -46,16 +46,16 @@ namespace Engine::Render::Device {
 
     void PhysicalDevice::GetDeviceQueueInfo(const vk::SurfaceKHR& surface) {
 
-        const auto& queueFams{ hardwareDevice.getQueueFamilyProperties2() };
+        const auto queueFams{ hardwareDevice.getQueueFamilyProperties2() };
 
-        int queueInx = -1;
+        int queueInx{ -1 };
         for (auto& queueFam : queueFams) {
             queueInx++;
 
-            const auto& flags = queueFam.queueFamilyProperties.queueFlags;
-            const auto& count = queueFam.queueFamilyProperties.queueCount;
+            const auto flags{ queueFam.queueFamilyProperties.queueFlags };
+            const auto count{ queueFam.queueFamilyProperties.queueCount };
 
-            bool surfacePresentSupport = hardwareDevice.getSurfaceSupportKHR(queueInx, surface);
+            bool surfacePresentSupport{ hardwareDevice.getSurfaceSupportKHR(queueInx, surface) != 0 };
             uint32_t queueCountLeft{ count }; // queue count left in this family
 
             // if the queue count is 2, but supports all queue flags, we can't use any more
@@ -85,7 +85,7 @@ namespace Engine::Render::Device {
 
 
     const bool PhysicalDevice::GetSwapchainSupport(const vk::SurfaceKHR& surf) {
-        auto const& dev_extns = hardwareDevice.enumerateDeviceExtensionProperties();
+        auto const dev_extns{ hardwareDevice.enumerateDeviceExtensionProperties() };
 
         bool allFound{ true };
 
@@ -101,9 +101,9 @@ namespace Engine::Render::Device {
             allFound &= foundThis;
         }
 
-        const auto& surfaceCapabs       = hardwareDevice.getSurfaceCapabilitiesKHR(surf);
-        const auto& surfaceFormats      = hardwareDevice.getSurfaceFormatsKHR(surf);
-        const auto& surfacePresentModes = hardwareDevice.getSurfacePresentModesKHR(surf);
+        const auto surfaceCapabs       { hardwareDevice.getSurfaceCapabilitiesKHR(surf) };
+        const auto surfaceFormats      { hardwareDevice.getSurfaceFormatsKHR(surf)      };
+        const auto surfacePresentModes { hardwareDevice.getSurfacePresentModesKHR(surf) };
 
         allSurfaceFormats   = surfaceFormats;
         allPresentModes     = surfacePresentModes;
@@ -120,9 +120,10 @@ namespace Engine::Render::Device {
         }
 
         // If mailbox is not present, use FIFO
-        bool mailbox = std::find(
-            surfacePresentModes.cbegin(), surfacePresentModes.cend(), vk::PresentModeKHR::eMailbox
-        ) != surfacePresentModes.cend();
+        bool mailbox{ std::find(
+                surfacePresentModes.cbegin(), surfacePresentModes.cend(), vk::PresentModeKHR::eMailbox
+            ) != surfacePresentModes.cend()
+        };
 
         if (mailbox) presentMode = vk::PresentModeKHR::eMailbox;
         else presentMode = vk::PresentModeKHR::eFifo;
@@ -144,9 +145,9 @@ namespace Engine::Render::Device {
     const PhysicalDevice PickDevice(const vk::Instance& instance, const vk::SurfaceKHR& surface) {
         std::map<int, const PhysicalDevice> devices{};
 
-        int index = 0;
+        int index{ 0 };
         for (const auto& i : instance.enumeratePhysicalDevices()) {
-            const auto& dev = PhysicalDevice(index, i, surface);
+            const auto dev{ PhysicalDevice(index, i, surface) };
             devices.emplace(dev.GetScore(), dev);
         }
 

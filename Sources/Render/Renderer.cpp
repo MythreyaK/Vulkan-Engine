@@ -72,77 +72,77 @@ namespace Engine::Render {
     }
 
     void Renderer::DrawFrame() {
-        //static unsigned frameNumber{ 0 };
-        //static int currentFrame{ 0 };
-        //static std::vector<bool> imagesInFlight(GetMaxFramesInFlight());
+        static unsigned frameNumber{ 0 };
+        static int currentFrame{ 0 };
+        static std::vector<bool> imagesInFlight(GetMaxFramesInFlight());
 
-        //renderDevice->waitForFences(1, &inFlightFences[currentFrame].get(), true, UINT64_MAX);
+        renderDevice->waitForFences(1, &inFlightFences[currentFrame].get(), true, UINT64_MAX);
 
-        //vk::ResultValue<uint32_t> acquireResult{ vk::Result{}, 0 };
+        vk::ResultValue<uint32_t> acquireResult{ vk::Result{}, 0 };
 
-        //try {
-        //    acquireResult = renderDevice->acquireNextImageKHR(swapchain.get(), UINT64_MAX, imageAvailableSemaphores[currentFrame].get(), nullptr);
-        //}
-        //catch (const std::exception&) {
-        //    queues[0].waitIdle();
-        //    DestroySyncObjects();
-        //    WaitDevice();
-        //    CleanupSwapchain();
-        //    RecreateSwapchain();
-        //    CreateSyncObjects();
-        //    return;
-        //}
+        try {
+            acquireResult = renderDevice->acquireNextImageKHR(swapchain.get(), UINT64_MAX, imageAvailableSemaphores[currentFrame].get(), nullptr);
+        }
+        catch (const std::exception&) {
+            queues[0].waitIdle();
+            DestroySyncObjects();
+            WaitDevice();
+            CleanupSwapchain();
+            RecreateSwapchain();
+            CreateSyncObjects();
+            return;
+        }
 
-        //const auto imageIndex{ acquireResult.value};
+        const auto imageIndex{ acquireResult.value};
 
-        //if (imagesInFlight[imageIndex]) {
-        //    renderDevice->waitForFences(1, &inFlightFences[imageIndex].get(), true, UINT64_MAX);
-        //}
+        if (imagesInFlight[imageIndex]) {
+            renderDevice->waitForFences(1, &inFlightFences[imageIndex].get(), true, UINT64_MAX);
+        }
 
-        //imagesInFlight[currentFrame] = true;
+        imagesInFlight[currentFrame] = true;
 
-        //const auto stageMask { vk::PipelineStageFlags() |
-        //    vk::PipelineStageFlagBits::eColorAttachmentOutput };
+        const auto stageMask { vk::PipelineStageFlags() |
+            vk::PipelineStageFlagBits::eColorAttachmentOutput };
 
-        //const auto& submitInfo{ vk::SubmitInfo()
-        //    .setWaitSemaphoreCount(1)
-        //    .setCommandBufferCount(1)
-        //    .setPCommandBuffers(&commandBuffers[imageIndex].get())
-        //    .setWaitSemaphoreCount(1)
-        //    .setPWaitSemaphores(&imageAvailableSemaphores[currentFrame].get())
-        //    .setPWaitDstStageMask(&stageMask)
-        //    .setSignalSemaphoreCount(1)
-        //    .setPSignalSemaphores(&renderFinishedSemaphores[currentFrame].get())
-        //};
+        const auto submitInfo{ vk::SubmitInfo()
+            .setWaitSemaphoreCount(1)
+            .setCommandBufferCount(1)
+            .setPCommandBuffers(&commandBuffers[imageIndex].get())
+            .setWaitSemaphoreCount(1)
+            .setPWaitSemaphores(&imageAvailableSemaphores[currentFrame].get())
+            .setPWaitDstStageMask(&stageMask)
+            .setSignalSemaphoreCount(1)
+            .setPSignalSemaphores(&renderFinishedSemaphores[currentFrame].get())
+        };
 
-        //renderDevice->resetFences(1, &inFlightFences[currentFrame].get());
-        //queues[0].submit(submitInfo, inFlightFences[currentFrame].get());
+        renderDevice->resetFences(1, &inFlightFences[currentFrame].get());
+        queues[0].submit(submitInfo, inFlightFences[currentFrame].get());
 
-        //const auto presentInfo { vk::PresentInfoKHR()
-        //    .setWaitSemaphoreCount(1)
-        //    .setPWaitSemaphores(&renderFinishedSemaphores[currentFrame].get())
-        //    .setPSwapchains(&swapchain.get())
-        //    .setSwapchainCount(1)
-        //    .setPImageIndices(&imageIndex)
-        //};
+        const auto presentInfo { vk::PresentInfoKHR()
+            .setWaitSemaphoreCount(1)
+            .setPWaitSemaphores(&renderFinishedSemaphores[currentFrame].get())
+            .setPSwapchains(&swapchain.get())
+            .setSwapchainCount(1)
+            .setPImageIndices(&imageIndex)
+        };
 
-        //try {
-        //    queues[0].presentKHR(presentInfo);
-        //}
+        try {
+            queues[0].presentKHR(presentInfo);
+        }
 
-        //catch (const std::exception&) {
-        //    queues[0].waitIdle();
-        //    DestroySyncObjects();
-        //    WaitDevice();
-        //    CleanupSwapchain();
-        //    RecreateSwapchain();
-        //    CreateSyncObjects();
-        //    return;
-        //}
+        catch (const std::exception&) {
+            queues[0].waitIdle();
+            DestroySyncObjects();
+            WaitDevice();
+            CleanupSwapchain();
+            RecreateSwapchain();
+            CreateSyncObjects();
+            return;
+        }
 
-        //// TODO: Disable Vulkan exceptions and use if/else
+        // TODO: Disable Vulkan exceptions and use if/else
 
-        //currentFrame = (currentFrame + 1) % GetMaxFramesInFlight();
+        currentFrame = (currentFrame + 1) % GetMaxFramesInFlight();
     }
 
 

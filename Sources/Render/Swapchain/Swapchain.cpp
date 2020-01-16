@@ -22,7 +22,7 @@ namespace Engine::Render::Swapchain {
 
         std::vector<vk::UniqueImageView> swapImageViews{};
 
-        auto& imViewCrInf = vk::ImageViewCreateInfo()
+        auto imViewCrInf{ vk::ImageViewCreateInfo()
             .setFormat(devInf.SurfaceFormat().format)
             .setViewType(vk::ImageViewType::e2D)
             .setComponents(vk::ComponentSwizzle::eIdentity)
@@ -32,7 +32,8 @@ namespace Engine::Render::Swapchain {
                 .setBaseMipLevel(0)
                 .setBaseArrayLayer(0)
                 .setAspectMask(vk::ImageAspectFlagBits::eColor)
-            );
+            )
+        };
 
         for (const auto& i : swapImages) {
             swapImageViews.emplace_back(renderDevice.createImageViewUnique(imViewCrInf.setImage(i)));
@@ -43,10 +44,10 @@ namespace Engine::Render::Swapchain {
 
     vk::SwapchainCreateInfoKHR GetSwapchainCreateInfo(const ERD::PhysicalDevice& devInf, const vk::SurfaceKHR& surface) {
 
-        const auto& capabs      = devInf.Get().getSurfaceCapabilitiesKHR(surface);
-        const auto& imageCount  = capabs.minImageCount + 2;
+        const auto capabs       { devInf.Get().getSurfaceCapabilitiesKHR(surface) };
+        const auto imageCount   { capabs.minImageCount + 2 };
 
-        const auto& swpInfo = vk::SwapchainCreateInfoKHR()
+        const auto swpInfo{ vk::SwapchainCreateInfoKHR()
             .setImageArrayLayers(1)
             .setImageExtent(capabs.currentExtent)
             .setMinImageCount(imageCount)
@@ -61,7 +62,9 @@ namespace Engine::Render::Swapchain {
             //.setQueueFamilyIndexCount()
             .setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque)
             .setClipped(true)
-            .setPresentMode(devInf.PresentMode());
+            .setPresentMode(devInf.PresentMode())
+        };
+
         return swpInfo;
     }
 
@@ -69,7 +72,7 @@ namespace Engine::Render::Swapchain {
 
         std::vector<vk::UniqueFramebuffer> frameBuffers;
 
-        auto& framebufferCreateInfo { vk::FramebufferCreateInfo()
+        auto framebufferCreateInfo { vk::FramebufferCreateInfo()
             .setRenderPass(renderPass)
             .setHeight(swapExtents.height)
             .setWidth(swapExtents.width)
