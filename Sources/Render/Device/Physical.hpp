@@ -21,7 +21,7 @@ namespace Engine::Render::Device {
 
         vk::SurfaceFormatKHR                surfaceFormat{};
         vk::PresentModeKHR                  presentMode{};
-
+         // TODO: This approach is clumsy. Think of an alternative way.
         std::optional<uint32_t>             qfPresent{};
         std::optional<uint32_t>             qfCompute{};
         std::optional<uint32_t>             qfGraphics{};

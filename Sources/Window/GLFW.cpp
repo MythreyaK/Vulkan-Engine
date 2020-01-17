@@ -49,8 +49,8 @@ namespace Engine::Window {
     // Other functions
 
     std::vector<const char*> GLFW_Window_wrapper::GetGLFWRequiredInstanceExtensions() {
-        auto glfwExtCount = 0u;
-        auto glfwExt = glfwGetRequiredInstanceExtensions(&glfwExtCount);
+        auto glfwExtCount{ 0u };
+        auto glfwExt{ glfwGetRequiredInstanceExtensions(&glfwExtCount) };
         return {glfwExt, glfwExt + glfwExtCount};
     }
 

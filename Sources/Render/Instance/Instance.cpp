@@ -24,15 +24,15 @@ namespace Engine::Render::Instance {
         );
 
         // Debug/Validation layers
-#       ifndef RELEASE_BUILD
+#       ifdef BUILD_TYPE_DEBUG
         ch_vec requiredExtnsWithDebug{ requiredExtns };
-        requiredExtnsWithDebug.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        requiredExtnsWithDebug.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
         const ch_vec& val_layers{ GetValidationLayers(validationLayers) };
 
         if (!CheckValidationLayerSupport(val_layers))
             throw std::runtime_error("Requested Validation layers not available.");
-#       endif // !RELEASE_BUILD
+#       endif // BUILD_TYPE_DEBUG
 
 
         // App info 
@@ -49,17 +49,17 @@ namespace Engine::Render::Instance {
         const auto instCreateInfo{ vk::InstanceCreateInfo()
             .setFlags(vk::InstanceCreateFlags())
             .setPApplicationInfo(&appInfo)
+#           ifdef BUILD_TYPE_DEBUG
             // use required + debug extension for debug
-#       ifdef BUILD_TYPE_DEBUG
             .setEnabledLayerCount(static_cast<uint32_t>(val_layers.size()))
             .setPpEnabledLayerNames(val_layers.data())
             .setEnabledExtensionCount(static_cast<uint32_t>(requiredExtnsWithDebug.size()))
             .setPpEnabledExtensionNames(requiredExtnsWithDebug.data())
         };
-        // else just use the required extensions
-#       else
+#           else
+            // else just use the required extensions
             .setEnabledLayerCount(0)
-            .setPpEnabledLayerNames(val_layers.data())
+            .setPpEnabledLayerNames(nullptr)
             .setEnabledExtensionCount(static_cast<uint32_t>(requiredExtns.size()))
             .setPpEnabledExtensionNames(requiredExtns.data())
         };
