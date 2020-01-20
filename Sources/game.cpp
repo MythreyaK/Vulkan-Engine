@@ -16,7 +16,7 @@ int main(void) {
         termWindow.WindowLoop();
     }
     catch (std::exception e){
-        std::cerr << "Exception " << e.what() << "was raised.\n";
+        std::cerr << "Exception " << e.what() << " was raised.\n";
         return EXIT_FAILURE;
     }
 
