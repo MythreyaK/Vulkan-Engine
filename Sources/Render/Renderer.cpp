@@ -22,33 +22,38 @@ namespace Engine::Render {
     namespace ERS   = Engine::Render::Surface;
     namespace ERD   = Engine::Render::Device;
     namespace ERDL  = Engine::Render::Device::Logical;
+    namespace ERQU  = Engine::Render::Queue;
     namespace ERSP  = Engine::Render::Swapchain;
     namespace ERRP  = Engine::Render::RenderPass;
     namespace ERCD  = Engine::Render::Command;
 
+    auto ERQUG = ERQU::QueueType::Graphics;
 
     const char GetLevel(const vk::DebugUtilsMessageSeverityFlagBitsEXT& flags);
     const std::string GetType(const vk::DebugUtilsMessageTypeFlagsEXT& fl);
+    const std::map<ERQU::QueueType, int> GetNeededQueues();
 
     Renderer::Renderer(const std::vector<const char*>& instanceExtensions, WindowHandle* handle) :
-        renderInstance      (ERI::CreateInstance        (instanceExtensions,    std::nullopt,                       handle  )),
-#       ifdef BUILD_TYPE_DEBUG
-        debugMessenger      (ERDB::CreateDebugMessenger (renderInstance.get(),  debug_callback,                     this    )),
-#       endif // BUILD_TYPE_DEBUG
-        renderSurface       (ERS::CreateSurface         (renderInstance.get(),  handle                                      )),
-        physicalDeviceInfo  (ERD::PickDevice            (renderInstance.get(),  renderSurface.get()                         )),
-        renderDevice        (ERDL::CreateLogicalDevice  (physicalDeviceInfo,    renderSurface.get()                         )),
-        queues              (ERDL::GetQueues            (renderDevice.get(),    physicalDeviceInfo                          )),
-        swapchain           (ERSP::CreateSwapchain      (renderDevice.get(),    physicalDeviceInfo,                 renderSurface.get())),
-        swapImages          (ERSP::GetSwapchainImages   (renderDevice.get(),    swapchain.get()         )),
-        swapImageViews      (ERSP::CreateImageViews     (renderDevice.get(),    physicalDeviceInfo,                 swapImages              )),
-        renderPass          (ERRP::CreateRenderPass     (renderDevice.get(),    physicalDeviceInfo      )),
-        renderPipeline      (Pipeline                   (renderDevice.get(),    renderPass.get(),                   physicalDeviceInfo.GetExtent2D(renderSurface.get())    )),
-        framebuffers        (ERSP::CreateFramebuffers   (renderDevice.get(),    renderPass.get(),                   swapImageViews,                                         physicalDeviceInfo.GetExtent2D(renderSurface.get())  )),
-        commandPool         (ERCD::CreateQueueCommandPool(renderDevice.get(),   physicalDeviceInfo.PresentQueue()                           )),
-        commandBuffers      (ERCD::CreateCommandBuffer  (renderDevice.get(),    commandPool.get(),                  swapImageViews.size()   ))
+
+        renderInstance  (ERI::CreateInstance          (instanceExtensions,    std::nullopt,          handle )),
+#       ifdef BUILD_TYPE_DEBUG                                                                        
+        debugMessenger  (ERDB::CreateDebugMessenger   (renderInstance.get(),  debug_callback,        this   )),
+#       endif // BUILD_TYPE_DEBUG                                                                     
+        renderSurface   (ERS::CreateSurface           (renderInstance.get(),  handle                 )),
+        deviceInfo      (ERD::PickDevice              (renderInstance.get(),  renderSurface.get()           )),
+        queues          (ERQU::QueueManager           (deviceInfo.Get(),      renderSurface.get(),   GetNeededQueues()   )),
+        renderDevice    (ERDL::CreateLogicalDevice    (deviceInfo,            renderSurface.get(),   queues              )),
+        swapchain       (ERSP::CreateSwapchain        (renderDevice.get(),    deviceInfo,            renderSurface.get() )),
+        swapImages      (ERSP::GetSwapchainImages     (renderDevice.get(),    swapchain.get()                            )),
+        swapImageViews  (ERSP::CreateImageViews       (renderDevice.get(),    deviceInfo,            swapImages          )),
+        renderPass      (ERRP::CreateRenderPass       (renderDevice.get(),    deviceInfo                                 )),
+        renderPipeline  (Pipeline                     (renderDevice.get(),    renderPass.get(),      deviceInfo.GetExtent2D(renderSurface.get()) )),
+        framebuffers    (ERSP::CreateFramebuffers     (renderDevice.get(),    renderPass.get(),      swapImageViews,                             deviceInfo.GetExtent2D(renderSurface.get())  )),
+        commandPools    (ERCD::CreateQueueCommandPool (renderDevice.get(),    queues                                     ))
+        //commandBuffers  (ERCD::CreateCommandBuffers   (renderDevice.get(),    commandPools,          swapImageViews.size()    ))
     {
-        ERCD::RecordCommands(commandBuffers, framebuffers, renderPass.get(), renderPipeline, physicalDeviceInfo.GetExtent2D(renderSurface.get()));
+        commandBuffers = ERCD::CreateCommandBuffers(renderDevice.get(), commandPools, swapImageViews.size());
+        ERCD::RecordCommands(ERQU::QueueType::Graphics, commandBuffers[ERQU::QueueType::Graphics], framebuffers, renderPass.get(), renderPipeline, deviceInfo.GetExtent2D(renderSurface.get()));
         CreateSyncObjects();
     }
 
@@ -84,7 +89,7 @@ namespace Engine::Render {
             acquireResult = renderDevice->acquireNextImageKHR(swapchain.get(), UINT64_MAX, imageAvailableSemaphores[currentFrame].get(), nullptr);
         }
         catch (const std::exception&) {
-            queues[0].waitIdle();
+            queues[ERQU::QueueType::Graphics].waitIdle();
             DestroySyncObjects();
             WaitDevice();
             CleanupSwapchain();
@@ -107,7 +112,7 @@ namespace Engine::Render {
         const auto submitInfo{ vk::SubmitInfo()
             .setWaitSemaphoreCount(1)
             .setCommandBufferCount(1)
-            .setPCommandBuffers(&commandBuffers[imageIndex].get())
+            .setPCommandBuffers(&commandBuffers[ERQU::QueueType::Graphics][imageIndex].get())
             .setWaitSemaphoreCount(1)
             .setPWaitSemaphores(&imageAvailableSemaphores[currentFrame].get())
             .setPWaitDstStageMask(&stageMask)
@@ -116,7 +121,7 @@ namespace Engine::Render {
         };
 
         renderDevice->resetFences(1, &inFlightFences[currentFrame].get());
-        queues[0].submit(submitInfo, inFlightFences[currentFrame].get());
+        queues[ERQU::QueueType::Graphics].submit(submitInfo, inFlightFences[currentFrame].get());
 
         const auto presentInfo { vk::PresentInfoKHR()
             .setWaitSemaphoreCount(1)
@@ -127,11 +132,11 @@ namespace Engine::Render {
         };
 
         try {
-            queues[0].presentKHR(presentInfo);
+            queues[ERQU::QueueType::Graphics].presentKHR(presentInfo);
         }
 
         catch (const std::exception&) {
-            queues[0].waitIdle();
+            queues[ERQU::QueueType::Graphics].waitIdle();
             DestroySyncObjects();
             WaitDevice();
             CleanupSwapchain();
@@ -146,32 +151,39 @@ namespace Engine::Render {
     }
 
 
+    const std::map<ERQU::QueueType, int> GetNeededQueues() {
+        return {
+            {ERQU::QueueType::Graphics, 1}
+        };
+    }
+
+
     void Renderer::WaitDevice() {
         renderDevice->waitIdle();
     }
 
 
-    void Renderer::RecreateSwapchain() {
-        swapchain       = ERSP::CreateSwapchain(renderDevice.get(), physicalDeviceInfo, renderSurface.get(), swapchain.get());
-        swapImages      = ERSP::GetSwapchainImages(renderDevice.get(), swapchain.get());
-        swapImageViews  = ERSP::CreateImageViews(renderDevice.get(), physicalDeviceInfo, swapImages);
-        renderPass      = ERRP::CreateRenderPass(renderDevice.get(), physicalDeviceInfo);
-        renderPipeline  = Pipeline(renderDevice.get(), renderPass.get(), physicalDeviceInfo.GetExtent2D(renderSurface.get()));
-        framebuffers    = ERSP::CreateFramebuffers(renderDevice.get(), renderPass.get(), swapImageViews, physicalDeviceInfo.GetExtent2D(renderSurface.get()));
-        commandPool     = ERCD::CreateQueueCommandPool(renderDevice.get(), physicalDeviceInfo.PresentQueue());
-        commandBuffers  = ERCD::CreateCommandBuffer(renderDevice.get(), commandPool.get(), swapImageViews.size());
 
-        ERCD::RecordCommands(commandBuffers, framebuffers, renderPass.get(), renderPipeline, physicalDeviceInfo.GetExtent2D(renderSurface.get()));
+    void Renderer::RecreateSwapchain() {
+        swapchain       = ERSP::CreateSwapchain(renderDevice.get(), deviceInfo, renderSurface.get(), swapchain.get());
+        swapImages      = ERSP::GetSwapchainImages(renderDevice.get(), swapchain.get());
+        swapImageViews  = ERSP::CreateImageViews(renderDevice.get(), deviceInfo, swapImages);
+        renderPass      = ERRP::CreateRenderPass(renderDevice.get(), deviceInfo);
+        renderPipeline  = Pipeline(renderDevice.get(), renderPass.get(), deviceInfo.GetExtent2D(renderSurface.get()));
+        framebuffers    = ERSP::CreateFramebuffers(renderDevice.get(), renderPass.get(), swapImageViews, deviceInfo.GetExtent2D(renderSurface.get()));
+        commandPools    = ERCD::CreateQueueCommandPool(renderDevice.get(), queues);
+        commandBuffers  = ERCD::CreateCommandBuffers(renderDevice.get(), commandPools, swapImageViews.size());
+        ERCD::RecordCommands(ERQU::QueueType::Graphics, commandBuffers[ERQU::QueueType::Graphics], framebuffers, renderPass.get(), renderPipeline, deviceInfo.GetExtent2D(renderSurface.get()));
     }
 
 
     void Renderer::CleanupSwapchain() {
-        commandBuffers.~vector();
-        commandPool.reset();
-        framebuffers.~vector();
+        commandBuffers.clear();
+        commandPools.clear();
+        framebuffers.clear();
         renderPass.reset();
-        swapImageViews.~vector();
-        swapImages.~vector();
+        swapImageViews.clear();
+        swapImages.clear();
         swapchain.reset();
     }
 

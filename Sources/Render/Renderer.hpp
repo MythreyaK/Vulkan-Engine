@@ -5,6 +5,7 @@
 #include "VKinclude/VKinclude.hpp"
 #include "Device/Physical.hpp"
 #include "Pipeline/Pipeline.hpp"
+#include "Queue/Queue.hpp"
 #include "Version.hpp"
 
 
@@ -14,6 +15,7 @@ typedef GLFWwindow WindowHandle;
 namespace Engine::Render {
 
     namespace ERD = Engine::Render::Device;
+    namespace ERQU = Engine::Render::Queue;
 
     class Renderer {
 
@@ -21,7 +23,8 @@ namespace Engine::Render {
         using UniqueDebugMessenger  = vk::UniqueDebugUtilsMessengerEXT;
         using UniqueImageViews      = std::vector<vk::UniqueImageView>;
         using UniqueFramebuffers    = std::vector<vk::UniqueFramebuffer>;
-        using UniqueCommandBuffers  = std::vector<vk::UniqueCommandBuffer>;
+        using UniqueCommandPools    = std::map<ERQU::QueueType, vk::UniqueCommandPool>;
+        using UniqueCommandBuffers  = std::map<ERQU::QueueType, std::vector<vk::UniqueCommandBuffer>>;
         using UniqueImagesSemaphore = std::vector<vk::UniqueSemaphore>;
         using UniqueRenderSemaphore = std::vector<vk::UniqueSemaphore>;
         using UniqueImageFences     = std::vector<vk::UniqueFence>;
@@ -32,16 +35,16 @@ namespace Engine::Render {
         UniqueDebugMessenger        debugMessenger;
 #       endif // !BUILD_TYPE_DEBUG
         vk::UniqueSurfaceKHR        renderSurface;
-        ERD::PhysicalDevice         physicalDeviceInfo;
+        ERD::PhysicalDevice         deviceInfo;
+        ERQU::QueueManager          queues;
         vk::UniqueDevice            renderDevice;
-        std::vector<vk::Queue>      queues;
         vk::UniqueSwapchainKHR      swapchain;
         std::vector<vk::Image>      swapImages;
         UniqueImageViews            swapImageViews;
         vk::UniqueRenderPass        renderPass;
         Pipeline                    renderPipeline;
         UniqueFramebuffers          framebuffers;
-        vk::UniqueCommandPool       commandPool;
+        UniqueCommandPools          commandPools;
         UniqueCommandBuffers        commandBuffers;
         UniqueImagesSemaphore       imageAvailableSemaphores;
         UniqueRenderSemaphore       renderFinishedSemaphores;
@@ -59,7 +62,6 @@ namespace Engine::Render {
         const int GetMaxFramesInFlight();
 
     public:
-        Renderer() = default;
         Renderer(const std::vector<const char*>& instanceExtensions, WindowHandle* handle);
 
         Renderer(Renderer&&)            = default;
