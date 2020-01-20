@@ -20,6 +20,7 @@ CMakeSettings.json
 *.lo
 *.o
 *.obj
+*.spv
 
 # Precompiled Headers
 *.gch
