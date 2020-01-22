@@ -189,7 +189,7 @@ namespace Engine::Render {
 
     const int Renderer::GetMaxFramesInFlight() {
         assert(swapImages.size() > 0 || 0 == "Swap Images size is zero!");
-        return swapImages.size();
+        return static_cast<int>(swapImages.size());
     }
 
 

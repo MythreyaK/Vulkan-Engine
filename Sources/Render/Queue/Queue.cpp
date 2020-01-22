@@ -37,7 +37,7 @@ namespace Engine::Render::Queue {
             // If there are two families that evaluate to the same QueueType,
             // then this code will crash and burn. I don't see devices where
             // that can happen though
-            switch (flags.operator VkQueueFlags()) {
+            switch (static_cast<VkQueueFlags>(flags)) {
 
                 case vkQFB_Graphics | vkQFB_Compute:
                 case vkQFB_Graphics | vkQFB_Compute | vkQFB_Transfer:
@@ -93,7 +93,7 @@ namespace Engine::Render::Queue {
     void QueueManager::PopulateQueues(const vk::Device& renderDevice) {
         for (const auto& queueFam : queueFamilies) {
             if (queueFam.second.Used > 0) {
-                for (int i = 0; i < queueFam.second.Used; ++i) {
+                for (uint32_t i = 0; i < queueFam.second.Used; ++i) {
                     allocatedQueues.emplace(queueFam.first, renderDevice.getQueue(queueFam.second.Index, i));
                 }
             }
