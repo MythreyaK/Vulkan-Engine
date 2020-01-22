@@ -7,7 +7,7 @@
 
 using namespace Engine;
 
-int main(void) {
+int main(int argc, char *argv[]) {
 
     GameWindow::DumpVersion();
 
