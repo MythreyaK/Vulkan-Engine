@@ -49,10 +49,9 @@ namespace Engine::Render {
         renderPass      (ERRP::CreateRenderPass       (renderDevice.get(),    deviceInfo                                 )),
         renderPipeline  (Pipeline                     (renderDevice.get(),    renderPass.get(),      deviceInfo.GetExtent2D(renderSurface.get()) )),
         framebuffers    (ERSP::CreateFramebuffers     (renderDevice.get(),    renderPass.get(),      swapImageViews,                             deviceInfo.GetExtent2D(renderSurface.get())  )),
-        commandPools    (ERCD::CreateQueueCommandPool (renderDevice.get(),    queues                                     ))
-        //commandBuffers  (ERCD::CreateCommandBuffers   (renderDevice.get(),    commandPools,          swapImageViews.size()    ))
+        commandPools    (ERCD::CreateQueueCommandPool (renderDevice.get(),    queues                                     )),
+        commandBuffers  (ERCD::CreateCommandBuffers   (renderDevice.get(),    commandPools,          swapImageViews.size()))
     {
-        commandBuffers = ERCD::CreateCommandBuffers(renderDevice.get(), commandPools, swapImageViews.size());
         ERCD::RecordCommands(ERQU::QueueType::Graphics, commandBuffers[ERQU::QueueType::Graphics], framebuffers, renderPass.get(), renderPipeline, deviceInfo.GetExtent2D(renderSurface.get()));
         CreateSyncObjects();
     }
@@ -71,9 +70,9 @@ namespace Engine::Render {
     }
 
     void Renderer::DestroySyncObjects() {
-        imageAvailableSemaphores.~vector();
-        renderFinishedSemaphores.~vector();
-        inFlightFences.~vector();
+        imageAvailableSemaphores.clear();
+        renderFinishedSemaphores.clear();
+        inFlightFences.clear();
     }
 
     void Renderer::DrawFrame() {
@@ -98,7 +97,7 @@ namespace Engine::Render {
             return;
         }
 
-        const auto imageIndex{ acquireResult.value};
+        const auto imageIndex{ acquireResult.value };
 
         if (imagesInFlight[imageIndex]) {
             renderDevice->waitForFences(1, &inFlightFences[imageIndex].get(), true, UINT64_MAX);
@@ -106,18 +105,17 @@ namespace Engine::Render {
 
         imagesInFlight[currentFrame] = true;
 
-        const auto stageMask { vk::PipelineStageFlags() |
+        static const auto stageMask { vk::PipelineStageFlags() |
             vk::PipelineStageFlagBits::eColorAttachmentOutput };
 
         const auto submitInfo{ vk::SubmitInfo()
-            .setWaitSemaphoreCount(1)
             .setCommandBufferCount(1)
             .setPCommandBuffers(&commandBuffers[ERQU::QueueType::Graphics][imageIndex].get())
             .setWaitSemaphoreCount(1)
             .setPWaitSemaphores(&imageAvailableSemaphores[currentFrame].get())
-            .setPWaitDstStageMask(&stageMask)
             .setSignalSemaphoreCount(1)
             .setPSignalSemaphores(&renderFinishedSemaphores[currentFrame].get())
+            .setPWaitDstStageMask(&stageMask)
         };
 
         renderDevice->resetFences(1, &inFlightFences[currentFrame].get());
@@ -126,15 +124,14 @@ namespace Engine::Render {
         const auto presentInfo { vk::PresentInfoKHR()
             .setWaitSemaphoreCount(1)
             .setPWaitSemaphores(&renderFinishedSemaphores[currentFrame].get())
-            .setPSwapchains(&swapchain.get())
             .setSwapchainCount(1)
+            .setPSwapchains(&swapchain.get())
             .setPImageIndices(&imageIndex)
         };
 
         try {
             queues[ERQU::QueueType::Graphics].presentKHR(presentInfo);
         }
-
         catch (const std::exception&) {
             queues[ERQU::QueueType::Graphics].waitIdle();
             DestroySyncObjects();
@@ -153,7 +150,7 @@ namespace Engine::Render {
 
     const std::map<ERQU::QueueType, int> GetNeededQueues() {
         return {
-            {ERQU::QueueType::Graphics, 1}
+            { ERQU::QueueType::Graphics, 1 }
         };
     }
 

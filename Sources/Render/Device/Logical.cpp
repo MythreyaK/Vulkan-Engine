@@ -30,8 +30,8 @@ namespace Engine::Render::Device::Logical {
         const auto logicalDeviceCreateInfo{ vk::DeviceCreateInfo()
             // TODO: Hmmmm featuressss....
             .setPEnabledFeatures({})
-            .setPQueueCreateInfos(queuesCreateInfos.data())
             .setQueueCreateInfoCount(static_cast<uint32_t>(queuesCreateInfos.size()))
+            .setPQueueCreateInfos(queuesCreateInfos.data())
             .setEnabledExtensionCount(static_cast<uint32_t>(requiredDeviceExtensions.size()))
             .setPpEnabledExtensionNames(requiredDeviceExtensions.data())
         };
