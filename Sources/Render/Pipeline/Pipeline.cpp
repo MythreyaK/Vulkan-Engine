@@ -12,17 +12,15 @@ namespace Engine::Render {
 
     Pipeline::Pipeline(const vk::Device& renderDevice, const vk::RenderPass& renderPass, const vk::Extent2D& swapExtents) {
 
-        namespace ESHDR = Engine::Render::Shader;
+        namespace ERSHD = Engine::Render::Shader;
 
-        const auto vertCode { ESHDR::CreateShaderModule(renderDevice, path + "vert.spv") };
-        const auto fragCode { ESHDR::CreateShaderModule(renderDevice, path + "frag.spv") };
-
+        const auto vertCode { ERSHD::CreateShaderModule(renderDevice, path + "vert.spv") };
+        const auto fragCode { ERSHD::CreateShaderModule(renderDevice, path + "frag.spv") };
 
         const auto inputAssembly{ vk::PipelineInputAssemblyStateCreateInfo()
             .setTopology(vk::PrimitiveTopology::eTriangleList)
             .setPrimitiveRestartEnable(false)
         };
-
 
         const auto vertShaderStage{ vk::PipelineShaderStageCreateInfo()
             .setStage(vk::ShaderStageFlagBits::eVertex)
@@ -68,10 +66,10 @@ namespace Engine::Render {
         };
 
         const auto rasterizer{ vk::PipelineRasterizationStateCreateInfo()
+            .setLineWidth(1.0f)
             .setDepthClampEnable(false)
             .setRasterizerDiscardEnable(false)
             .setPolygonMode(vk::PolygonMode::eFill)
-            .setLineWidth(1.0f)
             .setCullMode(vk::CullModeFlagBits::eBack)
             .setFrontFace(vk::FrontFace::eClockwise)
             .setDepthBiasEnable(false)
@@ -91,7 +89,7 @@ namespace Engine::Render {
             .setBlendEnable(false)
         };
 
-        const auto colorBlending{ vk::PipelineColorBlendStateCreateInfo()
+        const auto colorBlendState{ vk::PipelineColorBlendStateCreateInfo()
             .setLogicOpEnable(false)
             .setLogicOp(vk::LogicOp::eCopy)
             .setAttachmentCount(1)
@@ -99,21 +97,19 @@ namespace Engine::Render {
             .setBlendConstants({0.0f, 0.0f, 0.0f, 0.0f})
         };
 
-
         const auto pipelineLayoutCreateInfo { vk::PipelineLayoutCreateInfo() };
 
         pipelineLayout = renderDevice.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 
-
         const auto graphicsPipelineCreateInfo { vk::GraphicsPipelineCreateInfo()
             .setPInputAssemblyState(&inputAssembly)
-            .setPStages(shaderStages)
             .setStageCount(2)
+            .setPStages(shaderStages)
             .setPVertexInputState(&vertexInputInfo)
             .setPMultisampleState(&multiSample)
             .setPViewportState(&viewportState)
             .setLayout(pipelineLayout.get())
-            .setPColorBlendState(&colorBlending)
+            .setPColorBlendState(&colorBlendState)
             .setPRasterizationState(&rasterizer)
             .setRenderPass(renderPass)
             .setSubpass(0)
