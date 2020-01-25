@@ -78,14 +78,12 @@ namespace Engine::Render {
     void Renderer::DrawFrame() {
 
         static int currentFrame{ 0 };
-        static std::vector<bool> imagesInFlight(GetMaxFramesInFlight());
-
-        renderDevice->waitForFences(1, &inFlightFences[currentFrame].get(), true, UINT64_MAX);
 
         vk::ResultValue<uint32_t> acquireResult{ vk::Result{}, 0 };
 
         try {
             acquireResult = renderDevice->acquireNextImageKHR(swapchain.get(), UINT64_MAX, imageAvailableSemaphores[currentFrame].get(), nullptr);
+            renderDevice->waitForFences(1, &inFlightFences[acquireResult.value].get(), true, UINT64_MAX);
         }
         catch (const std::exception&) {
             queues[ERQU::QueueType::Graphics].waitIdle();
@@ -98,12 +96,6 @@ namespace Engine::Render {
         }
 
         const auto imageIndex{ acquireResult.value };
-
-        if (imagesInFlight[imageIndex]) {
-            renderDevice->waitForFences(1, &inFlightFences[imageIndex].get(), true, UINT64_MAX);
-        }
-
-        imagesInFlight[currentFrame] = true;
 
         static const auto stageMask { vk::PipelineStageFlags() |
             vk::PipelineStageFlagBits::eColorAttachmentOutput };
