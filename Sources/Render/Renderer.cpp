@@ -87,11 +87,7 @@ namespace Engine::Render {
         }
         catch (const std::exception&) {
             queues[ERQU::QueueType::Graphics].waitIdle();
-            DestroySyncObjects();
-            WaitDevice();
-            CleanupSwapchain();
-            RecreateSwapchain();
-            CreateSyncObjects();
+            ReInit();
             return;
         }
 
@@ -126,11 +122,7 @@ namespace Engine::Render {
         }
         catch (const std::exception&) {
             queues[ERQU::QueueType::Graphics].waitIdle();
-            DestroySyncObjects();
-            WaitDevice();
-            CleanupSwapchain();
-            RecreateSwapchain();
-            CreateSyncObjects();
+            ReInit();
             return;
         }
 
@@ -139,19 +131,15 @@ namespace Engine::Render {
         currentFrame = (currentFrame + 1) % GetMaxFramesInFlight();
     }
 
-
     const std::map<ERQU::QueueType, int> GetNeededQueues() {
         return {
             { ERQU::QueueType::Graphics, 1 }
         };
     }
 
-
     void Renderer::WaitDevice() {
         renderDevice->waitIdle();
     }
-
-
 
     void Renderer::RecreateSwapchain() {
         swapchain       = ERSP::CreateSwapchain(renderDevice.get(), deviceInfo, renderSurface.get(), swapchain.get());
@@ -181,7 +169,16 @@ namespace Engine::Render {
         return static_cast<int>(swapImages.size());
     }
 
+    // Better name would be nice. 
+    void Renderer::ReInit() {
+        DestroySyncObjects();
+        WaitDevice();
+        CleanupSwapchain();
+        RecreateSwapchain();
+        CreateSyncObjects();
+    }
 
+    // Utility functions
     void Renderer::ValidationMessageCallback(
         const vk::DebugUtilsMessageSeverityFlagBitsEXT& messageSeverity,
         const vk::DebugUtilsMessageTypeFlagsEXT&        messageType,
@@ -193,7 +190,6 @@ namespace Engine::Render {
             << callbackData.pMessage << "\n";
         //callbackData.
     }
-
 
     const char GetLevel(const vk::DebugUtilsMessageSeverityFlagBitsEXT& flags) {
 

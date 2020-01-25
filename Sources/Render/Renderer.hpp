@@ -59,6 +59,8 @@ namespace Engine::Render {
         void DestroySyncObjects();
         void RecreateSwapchain();
         void CleanupSwapchain();
+        void ReInit();
+
         const int GetMaxFramesInFlight();
 
     public:
@@ -69,8 +71,9 @@ namespace Engine::Render {
         ~Renderer()                     = default;
 
         void DrawFrame();
-
         void WaitDevice();
+        void SuspendRendering();
+        void ResumeRendering();
 
         void ValidationMessageCallback(
             const vk::DebugUtilsMessageSeverityFlagBitsEXT& messageSeverity,
