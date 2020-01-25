@@ -1,9 +1,10 @@
 #ifndef GAME_MAIN_HPP
 #define GAME_MAIN_HPP
 
-#include "Window/GLFW.hpp"
+#include "GLFW.hpp"
 
 #include <string>
+#include <memory>
 
 namespace Engine::Render {
     class Renderer;
