@@ -9,7 +9,9 @@ add_library(RenderLib STATIC ${RENDER_CPP} ${RENDER_HPP} ${VERSION_SOURCE})
 target_include_directories(RenderLib
                         PUBLIC  "${Vulkan_INCLUDE_DIR}"
                         PUBLIC  "${CMAKE_CURRENT_SOURCE_DIR}"
-                        PUBLIC "${PROJECT_BINARY_DIR}/Sources/Version"
+                        PUBLIC  "${PROJECT_BINARY_DIR}/Sources/Version"
+                        PUBLIC  glm::glm
+                        PUBLIC  "${SOURCES_SUB_DIR}/Primitives"
                         PRIVATE "${SOURCES_SUB_DIR}/Logging"
 )
 
