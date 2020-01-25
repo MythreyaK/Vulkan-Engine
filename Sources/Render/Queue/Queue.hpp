@@ -8,10 +8,10 @@ namespace Engine::Render::Queue {
 
     // vk::QueueFlagBits = vkQB
     enum class QueueType : char {
-        Compute  = 1,       // vkQB::eCompute (implies vkQB::eTransfer)
-        Transfer = 2,       // vkQB::eTransfer, (any of vkQB::eSparseBinding, vkQB::eProtected may be present)
-        Graphics = 3,       // vkQB::eGraphics + vkQB::eCompute (implies vkQB::eTransfer)
-        All      = Graphics // vkQB::eGraphics + vkQB::eCompute + vkQB::eTransfer
+        Graphics,      // vkQB::eGraphics + vkQB::eCompute (implies vkQB::eTransfer)
+        Compute,       // vkQB::eCompute (implies vkQB::eTransfer)
+        Transfer,      // vkQB::eTransfer, (any of vkQB::eSparseBinding, vkQB::eProtected may be present)
+        All = Graphics // vkQB::eGraphics + vkQB::eCompute + vkQB::eTransfer
     };
     // If a eGraphics only queue exists, there must also exist a queue with
     // support for eGraphics + eCompute. Each of the flags also imply transfer
