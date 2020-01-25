@@ -1,4 +1,5 @@
 #include "Shader.hpp"
+#include "Version.hpp"
 
 #include <fstream>
 #include <filesystem>
@@ -8,9 +9,10 @@ namespace Engine::Render::Shader {
 
     std::vector<std::byte> ReadShader(const std::string& fname);
 
+    const std::string ShaderDir{ std::string(Engine::Debug::BuildInfo::SourcesPath) + std::string("Render/GLSL/bin/")};
 
     vk::UniqueShaderModule CreateShaderModule(const vk::Device& device, const std::string& fname) {
-        const auto buffer{ ReadShader(fname) };
+        const auto buffer{ ReadShader(ShaderDir + fname) };
         const auto shaderModuleCreateInfo{ vk::ShaderModuleCreateInfo()
             .setCodeSize(buffer.size())
             .setPCode(reinterpret_cast<const uint32_t*>(buffer.data()))

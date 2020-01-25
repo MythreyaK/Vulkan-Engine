@@ -8,9 +8,10 @@
 #cmakedefine BUILD_TYPE_RELEASE
 #cmakedefine BUILD_TYPE_RELEASE_DEBUG_INFO
 
-constexpr auto SOURCES_PATH("@SOURCES_DIR@");
 
 namespace Engine::Debug::BuildInfo {
+
+    constexpr std::string_view   SourcesPath{"@SOURCES_DIR@/"};
 
     constexpr int Version_Major  {@VulkanEngine_VERSION_MAJOR@};
     constexpr int Version_Minor  {@VulkanEngine_VERSION_MINOR@};

@@ -1,6 +1,4 @@
 #include "Pipeline.hpp"
-
-#include "Version.hpp"
 #include "Shader/Shader.hpp"
 
 #include <iostream>
@@ -8,14 +6,12 @@
 
 namespace Engine::Render {
 
-    const std::string path = SOURCES_PATH + std::string("\\Render\\Shader\\");
-
     Pipeline::Pipeline(const vk::Device& renderDevice, const vk::RenderPass& renderPass, const vk::Extent2D& swapExtents) {
 
         namespace ERSHD = Engine::Render::Shader;
 
-        const auto vertCode { ERSHD::CreateShaderModule(renderDevice, path + "vert.spv") };
-        const auto fragCode { ERSHD::CreateShaderModule(renderDevice, path + "frag.spv") };
+        const auto vertCode { ERSHD::CreateShaderModule(renderDevice, "vert.spv") };
+        const auto fragCode { ERSHD::CreateShaderModule(renderDevice, "frag.spv") };
 
         const auto inputAssembly{ vk::PipelineInputAssemblyStateCreateInfo()
             .setTopology(vk::PrimitiveTopology::eTriangleList)
