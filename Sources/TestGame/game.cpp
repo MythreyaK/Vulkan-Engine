@@ -1,6 +1,6 @@
 #include "game.hpp"
-#include "Renderer.hpp"
-#include "Logger.hpp"
+#include "Render/Renderer.hpp"
+#include "Logging/Logger.hpp"
 #include "Version.hpp"
 
 #include <chrono>
