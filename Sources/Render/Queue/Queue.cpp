@@ -59,7 +59,8 @@ namespace Engine::Render::Queue {
                     break;
 
                 default:
-                    throw std::runtime_error("Unexpected queue case.");
+                    std::cerr << vk::to_string(flags);
+                    //throw std::runtime_error("Unexpected queue case.");
             }
 
             if (queueFamilies.count(queueFamilyType) > 0)
