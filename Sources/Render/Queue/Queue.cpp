@@ -42,25 +42,29 @@ namespace Engine::Render::Queue {
                 case vkQFB_Graphics | vkQFB_Compute:
                 case vkQFB_Graphics | vkQFB_Compute | vkQFB_Transfer:
                 case vkQFB_Graphics | vkQFB_Compute | vkQFB_Transfer | vkQFB_Sparse:
+                case vkQFB_Graphics | vkQFB_Compute | vkQFB_Transfer | vkQFB_Protec:
                 case vkQFB_Graphics | vkQFB_Compute | vkQFB_Transfer | vkQFB_Sparse | vkQFB_Protec:
                     queueFamilyType = QueueType::Graphics;
                     break;
 
+                case vkQFB_Compute:
                 case vkQFB_Compute | vkQFB_Transfer:
                 case vkQFB_Compute | vkQFB_Transfer | vkQFB_Sparse:
+                case vkQFB_Compute | vkQFB_Transfer | vkQFB_Protec:
                 case vkQFB_Compute | vkQFB_Transfer | vkQFB_Sparse | vkQFB_Protec:
                     queueFamilyType = QueueType::Compute;
                     break;
 
                 case vkQFB_Transfer:
                 case vkQFB_Transfer | vkQFB_Sparse:
+                case vkQFB_Transfer | vkQFB_Protec:
                 case vkQFB_Transfer | vkQFB_Sparse | vkQFB_Protec:
                     queueFamilyType = QueueType::Transfer;
                     break;
 
                 default:
                     std::cerr << vk::to_string(flags);
-                    //throw std::runtime_error("Unexpected queue case.");
+                    throw std::runtime_error("Unexpected queue case.");
             }
 
             if (queueFamilies.count(queueFamilyType) > 0)
