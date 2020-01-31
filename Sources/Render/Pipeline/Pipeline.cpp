@@ -1,5 +1,6 @@
 #include "Pipeline.hpp"
 #include "Shader/Shader.hpp"
+#include "Primitives/Vertex.hpp"
 
 #include <iostream>
 #include <string>
@@ -9,6 +10,7 @@ namespace Engine::Render {
     Pipeline::Pipeline(const vk::Device& renderDevice, const vk::RenderPass& renderPass, const vk::Extent2D& swapExtents) {
 
         namespace ERSHD = Engine::Render::Shader;
+        namespace EP = Engine::Primitives;
 
         const auto vertCode { ERSHD::CreateShaderModule(renderDevice, "vert.spv") };
         const auto fragCode { ERSHD::CreateShaderModule(renderDevice, "frag.spv") };
@@ -33,10 +35,14 @@ namespace Engine::Render {
         vk::PipelineShaderStageCreateInfo shaderStages[]{vertShaderStage, fragShaderStage};
 
         const auto vertexInputInfo{ vk::PipelineVertexInputStateCreateInfo()
-            .setVertexBindingDescriptionCount(0)
-            .setPVertexBindingDescriptions(nullptr)
-            .setVertexAttributeDescriptionCount(0)
-            .setPVertexAttributeDescriptions(nullptr)
+            //.setVertexBindingDescriptionCount(0)
+            //.setPVertexBindingDescriptions(nullptr)
+            //.setVertexAttributeDescriptionCount(0)
+            //.setPVertexAttributeDescriptions(nullptr)
+            .setVertexBindingDescriptionCount(1)
+            .setPVertexBindingDescriptions(EP::Vertex::Binding())
+            .setVertexAttributeDescriptionCount(EP::Vertex::Attributes().size())
+            .setPVertexAttributeDescriptions(EP::Vertex::Attributes().data())
             // TODO: Check 'instancing'
         };
 

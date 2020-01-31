@@ -15,6 +15,8 @@
 #include <iostream>
 #include <set>
 
+template class Engine::Render::Memory::DeviceMemory<Engine::Primitives::Vertex>;
+
 namespace Engine::Render {
 
     namespace ERI   = Engine::Render::Instance;
@@ -26,12 +28,20 @@ namespace Engine::Render {
     namespace ERSP  = Engine::Render::Swapchain;
     namespace ERRP  = Engine::Render::RenderPass;
     namespace ERCD  = Engine::Render::Command;
+    namespace ERM   = Engine::Render::Memory;
+    namespace EP    = Engine::Primitives;
 
     auto ERQUG = ERQU::QueueType::Graphics;
 
     const char GetLevel(const vk::DebugUtilsMessageSeverityFlagBitsEXT& flags);
     const std::string GetType(const vk::DebugUtilsMessageTypeFlagsEXT& fl);
     const std::map<ERQU::QueueType, int> GetNeededQueues();
+
+    const std::vector<Engine::Primitives::Vertex> vertices = {
+        {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+        {{0.5f, 0.5f},  {0.0f, 1.0f, 0.0f}},
+        {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+    };
 
     Renderer::Renderer(const std::vector<const char*>& instanceExtensions, WindowHandle* handle) :
 
@@ -52,7 +62,11 @@ namespace Engine::Render {
         commandPools    (ERCD::CreateQueueCommandPool (renderDevice.get(),    queues                                     )),
         commandBuffers  (ERCD::CreateCommandBuffers   (renderDevice.get(),    commandPools,          swapImageViews.size()))
     {
-        ERCD::RecordCommands(ERQU::QueueType::Graphics, commandBuffers[ERQU::QueueType::Graphics], framebuffers, renderPass.get(), renderPipeline, deviceInfo.GetExtent2D(renderSurface.get()));
+        p = ERM::DeviceMemory<EP::Vertex>(renderDevice.get(), deviceInfo, vk::BufferCreateInfo().setSharingMode(vk::SharingMode::eExclusive).setSize(EP::Vertex::Size(3)).setUsage(vk::BufferUsageFlagBits::eVertexBuffer), vk::MemoryPropertyFlagBits::eHostCoherent | vk::MemoryPropertyFlagBits::eHostVisible);
+        p.StagingBuffer() = vertices;
+        p.Map(renderDevice.get());
+        p.Unmap(renderDevice.get());
+        ERCD::RecordGraphicsCommandBuffers(commandBuffers[ERQU::QueueType::Graphics], framebuffers, renderPass.get(), renderPipeline, deviceInfo.GetExtent2D(renderSurface.get()), p);
         CreateSyncObjects();
     }
 
@@ -150,7 +164,7 @@ namespace Engine::Render {
         framebuffers    = ERSP::CreateFramebuffers(renderDevice.get(), renderPass.get(), swapImageViews, deviceInfo.GetExtent2D(renderSurface.get()));
         commandPools    = ERCD::CreateQueueCommandPool(renderDevice.get(), queues);
         commandBuffers  = ERCD::CreateCommandBuffers(renderDevice.get(), commandPools, swapImageViews.size());
-        ERCD::RecordCommands(ERQU::QueueType::Graphics, commandBuffers[ERQU::QueueType::Graphics], framebuffers, renderPass.get(), renderPipeline, deviceInfo.GetExtent2D(renderSurface.get()));
+        ERCD::RecordGraphicsCommandBuffers(commandBuffers[ERQU::QueueType::Graphics], framebuffers, renderPass.get(), renderPipeline, deviceInfo.GetExtent2D(renderSurface.get()), p);
     }
 
 

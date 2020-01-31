@@ -6,6 +6,8 @@
 #include "Device/Physical.hpp"
 #include "Pipeline/Pipeline.hpp"
 #include "Queue/Queue.hpp"
+#include "Memory/Buffers.hpp"
+#include "Primitives/Vertex.hpp"
 #include "Version.hpp"
 
 
@@ -49,7 +51,7 @@ namespace Engine::Render {
         UniqueImagesSemaphore       imageAvailableSemaphores;
         UniqueRenderSemaphore       renderFinishedSemaphores;
         UniqueImageFences           inFlightFences;
-
+        Engine::Render::Memory::DeviceMemory<Engine::Primitives::Vertex> p;
 
         // No copies!
         Renderer(const Renderer&) = delete;
