@@ -6,6 +6,15 @@
 #include <iostream>
 #include <map>
 
+namespace VULKAN_HPP_NAMESPACE {
+    std::ostream& operator<< (std::ostream& stream, const vk::ConformanceVersion& v) {
+        return stream
+            << static_cast<int> (v.major)    << "."
+            << static_cast<int> (v.minor)    << "."
+            << static_cast<int> (v.subminor) << "."
+            << static_cast<int> (v.patch);
+    }
+}
 
 namespace Engine::Render::Device {
 
@@ -57,9 +66,18 @@ namespace Engine::Render::Device {
 
 
     const int PhysicalDevice::ScoreDevice(const vk::SurfaceKHR& surf) {
+
+        using VK_PROP = vk::PhysicalDeviceProperties2;
+        using VK_DRIVER = vk::PhysicalDeviceDriverProperties;
+
         int score_{ 0 };
         auto features{ hardwareDevice.getFeatures2().features };
-        auto properties{ hardwareDevice.getProperties2().properties };
+        auto allProperties { hardwareDevice.getProperties2
+            <vk::PhysicalDeviceProperties2, vk::PhysicalDeviceDriverProperties>()
+        };
+
+        const auto properties{ allProperties.get<VK_PROP>().properties };
+        const auto driverInfo{ allProperties.get<VK_DRIVER>() };
 
         if (properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {
             score_ += 100;
@@ -69,9 +87,13 @@ namespace Engine::Render::Device {
             score_ += 20;
         }
 
-        LOGGER << "GPU: "               << properties.deviceName                    << '\n';
-        LOGGER << "\t Type: "           << vk::to_string(properties.deviceType)     << '\n';
-        LOGGER << "\t Texture limit: "  << properties.limits.maxImageDimension2D    << '\n';
+        LOGGER << "GPU: "               << properties.deviceName                 << '\n';
+        LOGGER << "\t Type:           " << vk::to_string(properties.deviceType)  << '\n';
+        LOGGER << "\t Texture limit:  " << properties.limits.maxImageDimension2D << '\n';
+        LOGGER << "\t Driver name:    " << driverInfo.driverName                 << '\n';
+        LOGGER << "\t Driver make:    " << vk::to_string(driverInfo.driverID)    << '\n';
+        LOGGER << "\t Driver version: " << driverInfo.driverInfo                 << '\n';
+        LOGGER << "\t Driver VKAPI:   " << driverInfo.conformanceVersion         << '\n';
 
         return score_;
     }
@@ -143,5 +165,4 @@ namespace Engine::Render::Device {
         return presentMode;
     }
 }
-
 
