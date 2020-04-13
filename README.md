@@ -1,5 +1,5 @@
 # Vulkan Renderer
-A project to teach myself the the graphics pipeline, rendering and Vulkan.
+A project to teach myself the graphics pipeline, rendering and Vulkan.
 
 ## What can it do?
 Render a fancy triangle at over 400 FPS (for now). 
