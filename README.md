@@ -13,3 +13,6 @@ Features will be added as I learn and experiment with Vulkan.
 - GLM 0.9.9
 - C++17 capable compiler
 - GLFW 3.3 for window creation
+
+Update: Development is currently on hold. It will resume soon, once I have the time and am confident with the intricacies 
+of the C++ threading library. 
